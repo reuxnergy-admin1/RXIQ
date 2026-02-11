@@ -2,51 +2,30 @@
 # RXIQ API — Deployment Guide
 # ──────────────────────────────────────────────────────────────
 #
-# OPTION 1: Railway (fastest — recommended for MVP)
+# OPTION 1: Vultr VPS (recommended — full control, $6/mo)
 # ──────────────────────────────────────────────────────────────
 #
-#   1. Install Railway CLI:
-#        npm install -g @railway/cli
+#   See VULTR_DEPLOY.md for the complete guide.
 #
-#   2. Login and init:
-#        railway login
-#        railway init
-#
-#   3. Add Redis:
-#        railway add --plugin redis
-#
-#   4. Set environment variables:
-#        railway variables set OPENAI_API_KEY=sk-your-key
-#
-#   5. Deploy:
-#        railway up
-#
-#   6. Get your public URL:
-#        railway domain
+#   Quick start:
+#     ssh root@YOUR-VULTR-IP
+#     curl -sSL https://raw.githubusercontent.com/reuxnergy-admin1/RXIQ/main/vultr-setup.sh | bash
+#     nano /opt/rxiq-rapidapi/.env   # Set your API keys
+#     cd /opt/rxiq-rapidapi && docker compose up -d
 #
 # ──────────────────────────────────────────────────────────────
-# OPTION 2: Render (one-click with render.yaml)
-# ──────────────────────────────────────────────────────────────
-#
-#   1. Push to GitHub
-#   2. Go to https://render.com/deploy
-#   3. Connect your repo (render.yaml auto-detected)
-#   4. Set OPENAI_API_KEY in environment
-#   5. Click "Apply"
-#
-# ──────────────────────────────────────────────────────────────
-# OPTION 3: Docker (any cloud provider)
+# OPTION 2: Docker (any cloud provider)
 # ──────────────────────────────────────────────────────────────
 #
 #   # Build and run locally:
-#   docker-compose up --build
+#   docker compose up --build
 #
 #   # Or build image for cloud:
 #   docker build -t rxiq-rapidapi .
 #   docker push your-registry/rxiq-rapidapi
 #
 # ──────────────────────────────────────────────────────────────
-# OPTION 4: Local Development
+# OPTION 3: Local Development
 # ──────────────────────────────────────────────────────────────
 #
 #   pip install -r requirements.txt
@@ -58,13 +37,13 @@
 # POST-DEPLOYMENT: Connect to RapidAPI
 # ──────────────────────────────────────────────────────────────
 #
-#   1. Get your deployed URL (e.g., https://your-app.up.railway.app)
+#   1. Get your deployed URL (e.g., http://YOUR-VULTR-IP)
 #   2. Go to RapidAPI Provider Dashboard
 #   3. Set Base URL to your deployed URL
 #   4. Copy your RapidAPI Proxy Secret
 #   5. Set RAPIDAPI_PROXY_SECRET env var on your server
-#   6. Uncomment proxy validation middleware in app/main.py
-#   7. Test all endpoints via RapidAPI tester
-#   8. Make API public
+#   6. Test all endpoints via RapidAPI tester
+#   7. Make API public
 #
-# See rapidapi/LISTING_GUIDE.md for full marketplace setup instructions.
+# See RAPIDAPI_DEPLOY.md for full marketplace setup instructions.
+# See VULTR_DEPLOY.md for Vultr-specific deployment guide.

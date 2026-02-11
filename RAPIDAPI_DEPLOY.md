@@ -19,39 +19,24 @@ Complete step-by-step guide to deploy your API and start earning revenue.
 
 ## Step 1: Deploy Your API to a Hosting Provider
 
-Your API needs a publicly accessible URL. Choose one:
+Your API needs a publicly accessible URL. We use **Vultr VPS**.
 
-### Option A: Railway (Recommended — Easiest)
+### Option A: Vultr VPS (Recommended — $6/mo)
+
+See **[VULTR_DEPLOY.md](VULTR_DEPLOY.md)** for the full guide.
+
+**Quick start:**
 
 ```bash
-# Install Railway CLI
-npm install -g @railway/cli
-
-# Login & deploy
-railway login
-railway init
-railway up
-
-# Set environment variables
-railway variables set OPENAI_API_KEY=sk-your-key-here
-railway variables set RAPIDAPI_PROXY_SECRET=your-secret-here
-railway variables set ENVIRONMENT=production
+ssh root@YOUR-VULTR-IP
+curl -sSL https://raw.githubusercontent.com/reuxnergy-admin1/RXIQ/main/vultr-setup.sh | bash
+nano /opt/rxiq-rapidapi/.env   # Set OPENAI_API_KEY and RAPIDAPI_PROXY_SECRET
+cd /opt/rxiq-rapidapi && docker compose up -d
 ```
 
-Railway gives you a URL like: `https://rxiq-api-production.up.railway.app`
+Your URL: `http://YOUR-VULTR-IP` (or `https://your-domain.com` with SSL)
 
-### Option B: Render
-
-1. Push your code to GitHub
-2. Go to [render.com](https://render.com) → New Web Service
-3. Connect your repo
-4. Render auto-detects the `render.yaml` config
-5. Add env vars: `OPENAI_API_KEY`, `RAPIDAPI_PROXY_SECRET`
-6. Deploy
-
-URL: `https://rxiq-api.onrender.com`
-
-### Option C: Docker on Any VPS (DigitalOcean, AWS, etc.)
+### Option B: Docker on Any VPS
 
 ```bash
 # Build and run
