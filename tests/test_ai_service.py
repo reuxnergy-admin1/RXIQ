@@ -14,6 +14,7 @@ from app.models import SentimentLabel, SummaryFormat
 def reset_ai_client():
     """Reset the lazy-initialized OpenAI client between tests."""
     import app.services.ai_service as ai_svc
+
     ai_svc._client = None
     yield
     ai_svc._client = None
@@ -141,12 +142,14 @@ class TestAnalyzeSentiment:
     @pytest.mark.asyncio
     @patch("app.services.ai_service._get_client")
     async def test_sentiment_positive(self, mock_get_client):
-        sentiment_json = json.dumps({
-            "sentiment": "positive",
-            "confidence": 0.95,
-            "scores": {"positive": 0.95, "negative": 0.02, "neutral": 0.03},
-            "key_phrases": ["absolutely amazing", "best ever"],
-        })
+        sentiment_json = json.dumps(
+            {
+                "sentiment": "positive",
+                "confidence": 0.95,
+                "scores": {"positive": 0.95, "negative": 0.02, "neutral": 0.03},
+                "key_phrases": ["absolutely amazing", "best ever"],
+            }
+        )
         client_mock = MagicMock()
         client_mock.chat.completions.create = AsyncMock(
             return_value=_mock_openai_response(sentiment_json)
@@ -165,12 +168,14 @@ class TestAnalyzeSentiment:
     @pytest.mark.asyncio
     @patch("app.services.ai_service._get_client")
     async def test_sentiment_negative(self, mock_get_client):
-        sentiment_json = json.dumps({
-            "sentiment": "negative",
-            "confidence": 0.88,
-            "scores": {"positive": 0.05, "negative": 0.88, "neutral": 0.07},
-            "key_phrases": ["terrible", "worst"],
-        })
+        sentiment_json = json.dumps(
+            {
+                "sentiment": "negative",
+                "confidence": 0.88,
+                "scores": {"positive": 0.05, "negative": 0.88, "neutral": 0.07},
+                "key_phrases": ["terrible", "worst"],
+            }
+        )
         client_mock = MagicMock()
         client_mock.chat.completions.create = AsyncMock(
             return_value=_mock_openai_response(sentiment_json)
@@ -205,12 +210,14 @@ class TestAnalyzeSentiment:
     @patch("app.services.ai_service._get_client")
     async def test_sentiment_unknown_label_fallback(self, mock_get_client):
         """When sentiment label is unrecognized, should default to neutral."""
-        sentiment_json = json.dumps({
-            "sentiment": "confused",  # Not a valid label
-            "confidence": 0.7,
-            "scores": {"positive": 0.3, "negative": 0.3, "neutral": 0.4},
-            "key_phrases": [],
-        })
+        sentiment_json = json.dumps(
+            {
+                "sentiment": "confused",  # Not a valid label
+                "confidence": 0.7,
+                "scores": {"positive": 0.3, "negative": 0.3, "neutral": 0.4},
+                "key_phrases": [],
+            }
+        )
         client_mock = MagicMock()
         client_mock.chat.completions.create = AsyncMock(
             return_value=_mock_openai_response(sentiment_json)
@@ -226,12 +233,14 @@ class TestAnalyzeSentiment:
     @pytest.mark.asyncio
     @patch("app.services.ai_service._get_client")
     async def test_sentiment_with_source_url(self, mock_get_client):
-        sentiment_json = json.dumps({
-            "sentiment": "neutral",
-            "confidence": 0.6,
-            "scores": {"positive": 0.3, "negative": 0.1, "neutral": 0.6},
-            "key_phrases": ["factual information"],
-        })
+        sentiment_json = json.dumps(
+            {
+                "sentiment": "neutral",
+                "confidence": 0.6,
+                "scores": {"positive": 0.3, "negative": 0.1, "neutral": 0.6},
+                "key_phrases": ["factual information"],
+            }
+        )
         client_mock = MagicMock()
         client_mock.chat.completions.create = AsyncMock(
             return_value=_mock_openai_response(sentiment_json)
@@ -253,12 +262,14 @@ class TestAnalyzeSentiment:
     @patch("app.services.ai_service._get_client")
     async def test_sentiment_confidence_clamped(self, mock_get_client):
         """Confidence values outside 0-1 range should be clamped."""
-        sentiment_json = json.dumps({
-            "sentiment": "positive",
-            "confidence": 1.5,  # Out of range
-            "scores": {"positive": 0.9, "negative": 0.05, "neutral": 0.05},
-            "key_phrases": [],
-        })
+        sentiment_json = json.dumps(
+            {
+                "sentiment": "positive",
+                "confidence": 1.5,  # Out of range
+                "scores": {"positive": 0.9, "negative": 0.05, "neutral": 0.05},
+                "key_phrases": [],
+            }
+        )
         client_mock = MagicMock()
         client_mock.chat.completions.create = AsyncMock(
             return_value=_mock_openai_response(sentiment_json)
@@ -277,6 +288,7 @@ class TestPricing:
 
     def test_get_tier_info_known_tier(self):
         from app.pricing import get_tier_info
+
         info = get_tier_info("pro")
         assert info["name"] == "Pro"
         assert info["price_monthly"] == 29.99
@@ -284,12 +296,14 @@ class TestPricing:
 
     def test_get_tier_info_unknown_falls_back_to_free(self):
         from app.pricing import get_tier_info
+
         info = get_tier_info("nonexistent")
         assert info["name"] == "Basic (Free)"
         assert info["price_monthly"] == 0
 
     def test_get_all_tiers(self):
         from app.pricing import get_all_tiers
+
         tiers = get_all_tiers()
         assert len(tiers) == 5
         assert "free" in tiers
@@ -300,11 +314,13 @@ class TestPricing:
 
     def test_free_tier_limited_endpoints(self):
         from app.pricing import get_tier_info
+
         free = get_tier_info("free")
         assert free["endpoints"] == ["extract"]
 
     def test_paid_tiers_have_all_endpoints(self):
         from app.pricing import get_tier_info
+
         for tier in ["starter", "pro", "business", "enterprise"]:
             info = get_tier_info(tier)
             assert "extract" in info["endpoints"]

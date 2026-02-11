@@ -77,7 +77,11 @@ async def fetch_html(url: str) -> tuple[str, str]:
 
         # Verify content-type is HTML-ish
         content_type = response.headers.get("content-type", "")
-        if content_type and "html" not in content_type.lower() and "text" not in content_type.lower():
+        if (
+            content_type
+            and "html" not in content_type.lower()
+            and "text" not in content_type.lower()
+        ):
             raise ValueError(
                 f"URL returned non-HTML content type: {content_type}. "
                 "Only HTML pages are supported."
@@ -178,6 +182,7 @@ def extract_content(
         from app.models import ReadabilityMetrics
         from app.services.text_analytics import compute_readability
         from dataclasses import asdict
+
         scores = compute_readability(text)
         readability = ReadabilityMetrics(**asdict(scores))
 
@@ -361,7 +366,9 @@ def _extract_author(soup: BeautifulSoup) -> Optional[str]:
 def _extract_date(soup: BeautifulSoup) -> Optional[str]:
     """Try multiple strategies to find the published date."""
     # <meta property="article:published_time">
-    meta = soup.find("meta", attrs={"property": re.compile(r"article:published_time", re.I)})
+    meta = soup.find(
+        "meta", attrs={"property": re.compile(r"article:published_time", re.I)}
+    )
     if meta:
         return meta.get("content", "").strip() or None
 
@@ -380,6 +387,7 @@ def _extract_date(soup: BeautifulSoup) -> Optional[str]:
 
 def _extract_open_graph(soup: BeautifulSoup) -> OpenGraphTags:
     """Extract Open Graph meta tags."""
+
     def get_og(prop: str) -> Optional[str]:
         tag = soup.find("meta", attrs={"property": f"og:{prop}"})
         return tag.get("content", "").strip() if tag else None
@@ -396,6 +404,7 @@ def _extract_open_graph(soup: BeautifulSoup) -> OpenGraphTags:
 
 def _extract_twitter_card(soup: BeautifulSoup) -> TwitterCard:
     """Extract Twitter Card meta tags."""
+
     def get_tc(name: str) -> Optional[str]:
         tag = soup.find("meta", attrs={"name": f"twitter:{name}"})
         if not tag:
@@ -456,7 +465,9 @@ def _fallback_extract(soup: BeautifulSoup) -> str:
 
     if content_area:
         paragraphs = content_area.find_all("p")
-        text = "\n\n".join(p.get_text(strip=True) for p in paragraphs if p.get_text(strip=True))
+        text = "\n\n".join(
+            p.get_text(strip=True) for p in paragraphs if p.get_text(strip=True)
+        )
         if text:
             return text
 

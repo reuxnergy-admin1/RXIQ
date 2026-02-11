@@ -77,6 +77,7 @@ async def lifespan(app: FastAPI):
     if settings.sentry_dsn:
         try:
             import sentry_sdk
+
             sentry_sdk.init(
                 dsn=settings.sentry_dsn,
                 traces_sample_rate=0.1,
@@ -157,7 +158,10 @@ app = FastAPI(
         "name": "Proprietary",
     },
     servers=[
-        {"url": "https://rxiq-api.p.rapidapi.com", "description": "RapidAPI Production"},
+        {
+            "url": "https://rxiq-api.p.rapidapi.com",
+            "description": "RapidAPI Production",
+        },
         {"url": "http://localhost:8000", "description": "Local Development"},
     ],
 )
@@ -237,7 +241,9 @@ async def production_middleware(request: Request, call_next):
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-    response.headers["Cache-Control"] = "no-store" if request.url.path.startswith("/api/") else "public, max-age=60"
+    response.headers["Cache-Control"] = (
+        "no-store" if request.url.path.startswith("/api/") else "public, max-age=60"
+    )
 
     # --- 5. Structured request log ---
     if request.url.path.startswith("/api/"):
@@ -315,7 +321,10 @@ async def health_check():
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     """Catch-all exception handler to return consistent error format."""
-    logger.error(f"Unhandled exception on {request.method} {request.url.path}: {exc}", exc_info=True)
+    logger.error(
+        f"Unhandled exception on {request.method} {request.url.path}: {exc}",
+        exc_info=True,
+    )
     return JSONResponse(
         status_code=500,
         content=ErrorResponse(
@@ -337,7 +346,7 @@ async def validation_exception_handler(request: Request, exc):
             error=ErrorDetail(
                 code="VALIDATION_ERROR",
                 message="Request validation failed. Check your input parameters.",
-                details=str(exc.detail) if hasattr(exc, 'detail') else str(exc),
+                details=str(exc.detail) if hasattr(exc, "detail") else str(exc),
             ),
         ).model_dump(mode="json"),
     )
@@ -349,7 +358,10 @@ async def validation_exception_handler(request: Request, exc):
 
 try:
     from prometheus_fastapi_instrumentator import Instrumentator
+
     Instrumentator().instrument(app).expose(app, endpoint="/metrics")
     logger.info("Prometheus metrics enabled at /metrics")
 except ImportError:
-    logger.info("Prometheus metrics not available (install prometheus-fastapi-instrumentator)")
+    logger.info(
+        "Prometheus metrics not available (install prometheus-fastapi-instrumentator)"
+    )

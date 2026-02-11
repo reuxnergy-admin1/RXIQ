@@ -227,10 +227,14 @@ def compute_content_quality_score(
         depth = 8
     else:
         depth = 3
-        recommendations.append("Content is very thin. Aim for 500+ words for better engagement.")
+        recommendations.append(
+            "Content is very thin. Aim for 500+ words for better engagement."
+        )
 
     if word_count < 300:
-        recommendations.append("Articles under 300 words typically rank poorly in search engines.")
+        recommendations.append(
+            "Articles under 300 words typically rank poorly in search engines."
+        )
     scores["content_depth"] = depth
 
     # --- Readability (20 pts) ---
@@ -243,11 +247,15 @@ def compute_content_quality_score(
         readability = 10
     else:
         readability = 5
-        recommendations.append("Content is very difficult to read. Simplify sentences and vocabulary.")
+        recommendations.append(
+            "Content is very difficult to read. Simplify sentences and vocabulary."
+        )
 
     if flesch_reading_ease > 90:
         readability = 12
-        recommendations.append("Content may be too simplistic for a professional audience.")
+        recommendations.append(
+            "Content may be too simplistic for a professional audience."
+        )
     scores["readability"] = readability
 
     # --- Structure (20 pts) ---
@@ -256,16 +264,22 @@ def compute_content_quality_score(
         structure += 8
     elif h1_count > 1:
         structure += 4
-        recommendations.append("Multiple H1 tags detected. Use exactly one H1 per page.")
+        recommendations.append(
+            "Multiple H1 tags detected. Use exactly one H1 per page."
+        )
     else:
-        recommendations.append("Missing H1 tag. Every page should have a single H1 heading.")
+        recommendations.append(
+            "Missing H1 tag. Every page should have a single H1 heading."
+        )
 
     if h2_count >= 2:
         structure += 8
     elif h2_count == 1:
         structure += 5
     else:
-        recommendations.append("Add H2 subheadings to break up content and improve scannability.")
+        recommendations.append(
+            "Add H2 subheadings to break up content and improve scannability."
+        )
 
     if sentence_count >= 5:
         structure += 4
@@ -285,7 +299,9 @@ def compute_content_quality_score(
                 f"{images_without_alt} image(s) missing alt text. Add descriptive alt attributes."
             )
     else:
-        recommendations.append("No images found. Adding relevant images improves engagement and SEO.")
+        recommendations.append(
+            "No images found. Adding relevant images improves engagement and SEO."
+        )
     scores["media"] = media
 
     # --- SEO Signals (15 pts) ---
@@ -293,17 +309,23 @@ def compute_content_quality_score(
     if has_meta_description:
         seo += 5
     else:
-        recommendations.append("Missing meta description. Add one for better search engine snippets.")
+        recommendations.append(
+            "Missing meta description. Add one for better search engine snippets."
+        )
     if has_canonical:
         seo += 3
     if has_open_graph:
         seo += 4
     else:
-        recommendations.append("Missing Open Graph tags. Add them for better social media sharing.")
+        recommendations.append(
+            "Missing Open Graph tags. Add them for better social media sharing."
+        )
     if has_schema_markup:
         seo += 3
     else:
-        recommendations.append("No Schema.org markup found. Add structured data for rich search results.")
+        recommendations.append(
+            "No Schema.org markup found. Add structured data for rich search results."
+        )
     scores["seo_signals"] = seo
 
     total = sum(scores.values())
@@ -370,30 +392,116 @@ def compute_similarity(text1: str, text2: str) -> dict:
 
     # Cosine similarity
     dot_product = sum(freq1.get(t, 0) * freq2.get(t, 0) for t in all_terms)
-    mag1 = math.sqrt(sum(v ** 2 for v in freq1.values()))
-    mag2 = math.sqrt(sum(v ** 2 for v in freq2.values()))
+    mag1 = math.sqrt(sum(v**2 for v in freq1.values()))
+    mag2 = math.sqrt(sum(v**2 for v in freq2.values()))
 
     similarity = dot_product / (mag1 * mag2) if mag1 and mag2 else 0.0
 
     # Top keywords per text (by frequency, filter stopwords)
     stopwords = {
-        "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
-        "have", "has", "had", "do", "does", "did", "will", "would", "could",
-        "should", "may", "might", "shall", "can", "to", "of", "in", "for",
-        "on", "with", "at", "by", "from", "as", "into", "through", "during",
-        "before", "after", "above", "below", "between", "out", "off", "over",
-        "under", "again", "further", "then", "once", "that", "this", "these",
-        "those", "it", "its", "he", "she", "they", "them", "his", "her",
-        "their", "my", "your", "our", "who", "which", "what", "where", "when",
-        "how", "all", "each", "every", "both", "few", "more", "most", "other",
-        "some", "such", "no", "not", "only", "than", "too", "very", "just",
-        "but", "and", "or", "if", "so", "about", "up", "also", "well",
+        "the",
+        "a",
+        "an",
+        "is",
+        "are",
+        "was",
+        "were",
+        "be",
+        "been",
+        "being",
+        "have",
+        "has",
+        "had",
+        "do",
+        "does",
+        "did",
+        "will",
+        "would",
+        "could",
+        "should",
+        "may",
+        "might",
+        "shall",
+        "can",
+        "to",
+        "of",
+        "in",
+        "for",
+        "on",
+        "with",
+        "at",
+        "by",
+        "from",
+        "as",
+        "into",
+        "through",
+        "during",
+        "before",
+        "after",
+        "above",
+        "below",
+        "between",
+        "out",
+        "off",
+        "over",
+        "under",
+        "again",
+        "further",
+        "then",
+        "once",
+        "that",
+        "this",
+        "these",
+        "those",
+        "it",
+        "its",
+        "he",
+        "she",
+        "they",
+        "them",
+        "his",
+        "her",
+        "their",
+        "my",
+        "your",
+        "our",
+        "who",
+        "which",
+        "what",
+        "where",
+        "when",
+        "how",
+        "all",
+        "each",
+        "every",
+        "both",
+        "few",
+        "more",
+        "most",
+        "other",
+        "some",
+        "such",
+        "no",
+        "not",
+        "only",
+        "than",
+        "too",
+        "very",
+        "just",
+        "but",
+        "and",
+        "or",
+        "if",
+        "so",
+        "about",
+        "up",
+        "also",
+        "well",
     }
 
     def top_keywords(freq: Counter, n: int = 20) -> list[str]:
         return [
-            w for w, _ in freq.most_common(n * 3)
-            if w not in stopwords and len(w) > 2
+            w for w, _ in freq.most_common(n * 3) if w not in stopwords and len(w) > 2
         ][:n]
 
     kw1 = set(top_keywords(freq1))

@@ -131,7 +131,9 @@ class TestExtractValidation:
         assert response.status_code == 422
 
     def test_rejects_ftp_url(self):
-        response = client.post("/api/v1/extract", json={"url": "ftp://example.com/file"})
+        response = client.post(
+            "/api/v1/extract", json={"url": "ftp://example.com/file"}
+        )
         assert response.status_code == 422
 
     def test_accepts_valid_url_format(self):

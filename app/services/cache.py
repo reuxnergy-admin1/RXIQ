@@ -32,6 +32,7 @@ async def init_redis() -> bool:
 
     try:
         import redis.asyncio as aioredis
+
         _redis_client = aioredis.from_url(
             settings.redis_url,
             encoding="utf-8",
@@ -43,7 +44,9 @@ async def init_redis() -> bool:
         logger.info("Redis connected successfully.")
         return True
     except Exception as e:
-        logger.warning(f"Redis connection failed: {e}. Falling back to in-memory cache.")
+        logger.warning(
+            f"Redis connection failed: {e}. Falling back to in-memory cache."
+        )
         _redis_available = False
         return False
 
@@ -84,7 +87,9 @@ async def get_cached(prefix: str, key_data: str) -> Optional[dict[str, Any]]:
     return None
 
 
-async def set_cached(prefix: str, key_data: str, value: dict[str, Any], ttl: Optional[int] = None) -> None:
+async def set_cached(
+    prefix: str, key_data: str, value: dict[str, Any], ttl: Optional[int] = None
+) -> None:
     """Set a cached value."""
     key = _cache_key(prefix, key_data)
     ttl = ttl or settings.cache_ttl

@@ -5,8 +5,7 @@ Mocked scraper and AI services — no network calls needed.
 
 from __future__ import annotations
 
-from dataclasses import asdict
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 from fastapi.testclient import TestClient
 
@@ -20,7 +19,6 @@ from app.models import (
     SummaryData,
     SummaryFormat,
 )
-from app.services.text_analytics import ReadabilityScores
 
 client = TestClient(app)
 
@@ -140,9 +138,17 @@ class TestExtractNewFeatures:
     @patch("app.routes.v1.cache.get_cached", new_callable=AsyncMock, return_value=None)
     @patch("app.routes.v1.cache.set_cached", new_callable=AsyncMock)
     @patch("app.routes.v1.scraper.extract_content", return_value=MOCK_CONTENT)
-    @patch("app.routes.v1.scraper.fetch_html", new_callable=AsyncMock, return_value=("<html></html>", "https://example.com/article"))
-    def test_extract_includes_readability(self, mock_fetch, mock_extract, mock_set, mock_get):
-        response = client.post("/api/v1/extract", json={"url": "https://example.com/article"})
+    @patch(
+        "app.routes.v1.scraper.fetch_html",
+        new_callable=AsyncMock,
+        return_value=("<html></html>", "https://example.com/article"),
+    )
+    def test_extract_includes_readability(
+        self, mock_fetch, mock_extract, mock_set, mock_get
+    ):
+        response = client.post(
+            "/api/v1/extract", json={"url": "https://example.com/article"}
+        )
         assert response.status_code == 200
         data = response.json()["data"]
         assert data["readability"] is not None
@@ -152,9 +158,17 @@ class TestExtractNewFeatures:
 
     @patch("app.routes.v1.cache.get_cached", new_callable=AsyncMock, return_value=None)
     @patch("app.routes.v1.cache.set_cached", new_callable=AsyncMock)
-    @patch("app.routes.v1.scraper.extract_content", return_value=MOCK_CONTENT_WITH_MARKDOWN)
-    @patch("app.routes.v1.scraper.fetch_html", new_callable=AsyncMock, return_value=("<html></html>", "https://example.com/article"))
-    def test_extract_markdown_output(self, mock_fetch, mock_extract, mock_set, mock_get):
+    @patch(
+        "app.routes.v1.scraper.extract_content", return_value=MOCK_CONTENT_WITH_MARKDOWN
+    )
+    @patch(
+        "app.routes.v1.scraper.fetch_html",
+        new_callable=AsyncMock,
+        return_value=("<html></html>", "https://example.com/article"),
+    )
+    def test_extract_markdown_output(
+        self, mock_fetch, mock_extract, mock_set, mock_get
+    ):
         response = client.post(
             "/api/v1/extract",
             json={"url": "https://example.com/article", "output_format": "markdown"},
@@ -167,8 +181,14 @@ class TestExtractNewFeatures:
     @patch("app.routes.v1.cache.get_cached", new_callable=AsyncMock, return_value=None)
     @patch("app.routes.v1.cache.set_cached", new_callable=AsyncMock)
     @patch("app.routes.v1.scraper.extract_content", return_value=MOCK_CONTENT)
-    @patch("app.routes.v1.scraper.fetch_html", new_callable=AsyncMock, return_value=("<html></html>", "https://example.com/article"))
-    def test_extract_text_mode_no_markdown(self, mock_fetch, mock_extract, mock_set, mock_get):
+    @patch(
+        "app.routes.v1.scraper.fetch_html",
+        new_callable=AsyncMock,
+        return_value=("<html></html>", "https://example.com/article"),
+    )
+    def test_extract_text_mode_no_markdown(
+        self, mock_fetch, mock_extract, mock_set, mock_get
+    ):
         response = client.post(
             "/api/v1/extract",
             json={"url": "https://example.com/article", "output_format": "text"},
@@ -180,10 +200,19 @@ class TestExtractNewFeatures:
     @patch("app.routes.v1.cache.get_cached", new_callable=AsyncMock, return_value=None)
     @patch("app.routes.v1.cache.set_cached", new_callable=AsyncMock)
     @patch("app.routes.v1.scraper.extract_content", return_value=MOCK_CONTENT)
-    @patch("app.routes.v1.scraper.fetch_html", new_callable=AsyncMock, return_value=("<html></html>", "https://example.com/article"))
-    def test_extract_cache_key_includes_format(self, mock_fetch, mock_extract, mock_set, mock_get):
+    @patch(
+        "app.routes.v1.scraper.fetch_html",
+        new_callable=AsyncMock,
+        return_value=("<html></html>", "https://example.com/article"),
+    )
+    def test_extract_cache_key_includes_format(
+        self, mock_fetch, mock_extract, mock_set, mock_get
+    ):
         """Cache key should differ by output_format."""
-        client.post("/api/v1/extract", json={"url": "https://example.com/article", "output_format": "markdown"})
+        client.post(
+            "/api/v1/extract",
+            json={"url": "https://example.com/article", "output_format": "markdown"},
+        )
         cache_key = mock_get.call_args[0][1]
         assert "markdown" in cache_key
 
@@ -198,14 +227,42 @@ class TestAnalyzeNewFeatures:
 
     @patch("app.routes.v1.cache.get_cached", new_callable=AsyncMock, return_value=None)
     @patch("app.routes.v1.cache.set_cached", new_callable=AsyncMock)
-    @patch("app.routes.v1.ai_service.extract_keywords", new_callable=AsyncMock, return_value=MOCK_KEYWORDS)
-    @patch("app.routes.v1.ai_service.analyze_sentiment", new_callable=AsyncMock, return_value=MOCK_SENTIMENT)
-    @patch("app.routes.v1.ai_service.summarize_text", new_callable=AsyncMock, return_value=MOCK_SUMMARY)
+    @patch(
+        "app.routes.v1.ai_service.extract_keywords",
+        new_callable=AsyncMock,
+        return_value=MOCK_KEYWORDS,
+    )
+    @patch(
+        "app.routes.v1.ai_service.analyze_sentiment",
+        new_callable=AsyncMock,
+        return_value=MOCK_SENTIMENT,
+    )
+    @patch(
+        "app.routes.v1.ai_service.summarize_text",
+        new_callable=AsyncMock,
+        return_value=MOCK_SUMMARY,
+    )
     @patch("app.routes.v1.scraper.extract_seo_metadata", return_value=MOCK_SEO)
     @patch("app.routes.v1.scraper.extract_content", return_value=MOCK_CONTENT)
-    @patch("app.routes.v1.scraper.fetch_html", new_callable=AsyncMock, return_value=("<html></html>", "https://example.com/article"))
-    def test_analyze_includes_keywords(self, mock_fetch, mock_extract, mock_seo, mock_summ, mock_sent, mock_kw, mock_set, mock_get):
-        response = client.post("/api/v1/analyze", json={"url": "https://example.com/article"})
+    @patch(
+        "app.routes.v1.scraper.fetch_html",
+        new_callable=AsyncMock,
+        return_value=("<html></html>", "https://example.com/article"),
+    )
+    def test_analyze_includes_keywords(
+        self,
+        mock_fetch,
+        mock_extract,
+        mock_seo,
+        mock_summ,
+        mock_sent,
+        mock_kw,
+        mock_set,
+        mock_get,
+    ):
+        response = client.post(
+            "/api/v1/analyze", json={"url": "https://example.com/article"}
+        )
         assert response.status_code == 200
         data = response.json()["data"]
         assert data["keywords"] is not None
@@ -215,14 +272,42 @@ class TestAnalyzeNewFeatures:
 
     @patch("app.routes.v1.cache.get_cached", new_callable=AsyncMock, return_value=None)
     @patch("app.routes.v1.cache.set_cached", new_callable=AsyncMock)
-    @patch("app.routes.v1.ai_service.extract_keywords", new_callable=AsyncMock, return_value=MOCK_KEYWORDS)
-    @patch("app.routes.v1.ai_service.analyze_sentiment", new_callable=AsyncMock, return_value=MOCK_SENTIMENT)
-    @patch("app.routes.v1.ai_service.summarize_text", new_callable=AsyncMock, return_value=MOCK_SUMMARY)
+    @patch(
+        "app.routes.v1.ai_service.extract_keywords",
+        new_callable=AsyncMock,
+        return_value=MOCK_KEYWORDS,
+    )
+    @patch(
+        "app.routes.v1.ai_service.analyze_sentiment",
+        new_callable=AsyncMock,
+        return_value=MOCK_SENTIMENT,
+    )
+    @patch(
+        "app.routes.v1.ai_service.summarize_text",
+        new_callable=AsyncMock,
+        return_value=MOCK_SUMMARY,
+    )
     @patch("app.routes.v1.scraper.extract_seo_metadata", return_value=MOCK_SEO)
     @patch("app.routes.v1.scraper.extract_content", return_value=MOCK_CONTENT)
-    @patch("app.routes.v1.scraper.fetch_html", new_callable=AsyncMock, return_value=("<html></html>", "https://example.com/article"))
-    def test_analyze_includes_quality_score(self, mock_fetch, mock_extract, mock_seo, mock_summ, mock_sent, mock_kw, mock_set, mock_get):
-        response = client.post("/api/v1/analyze", json={"url": "https://example.com/article"})
+    @patch(
+        "app.routes.v1.scraper.fetch_html",
+        new_callable=AsyncMock,
+        return_value=("<html></html>", "https://example.com/article"),
+    )
+    def test_analyze_includes_quality_score(
+        self,
+        mock_fetch,
+        mock_extract,
+        mock_seo,
+        mock_summ,
+        mock_sent,
+        mock_kw,
+        mock_set,
+        mock_get,
+    ):
+        response = client.post(
+            "/api/v1/analyze", json={"url": "https://example.com/article"}
+        )
         assert response.status_code == 200
         data = response.json()["data"]
         assert data["quality"] is not None
@@ -233,14 +318,42 @@ class TestAnalyzeNewFeatures:
 
     @patch("app.routes.v1.cache.get_cached", new_callable=AsyncMock, return_value=None)
     @patch("app.routes.v1.cache.set_cached", new_callable=AsyncMock)
-    @patch("app.routes.v1.ai_service.extract_keywords", new_callable=AsyncMock, return_value=MOCK_KEYWORDS)
-    @patch("app.routes.v1.ai_service.analyze_sentiment", new_callable=AsyncMock, return_value=MOCK_SENTIMENT)
-    @patch("app.routes.v1.ai_service.summarize_text", new_callable=AsyncMock, return_value=MOCK_SUMMARY)
+    @patch(
+        "app.routes.v1.ai_service.extract_keywords",
+        new_callable=AsyncMock,
+        return_value=MOCK_KEYWORDS,
+    )
+    @patch(
+        "app.routes.v1.ai_service.analyze_sentiment",
+        new_callable=AsyncMock,
+        return_value=MOCK_SENTIMENT,
+    )
+    @patch(
+        "app.routes.v1.ai_service.summarize_text",
+        new_callable=AsyncMock,
+        return_value=MOCK_SUMMARY,
+    )
     @patch("app.routes.v1.scraper.extract_seo_metadata", return_value=MOCK_SEO)
     @patch("app.routes.v1.scraper.extract_content", return_value=MOCK_CONTENT)
-    @patch("app.routes.v1.scraper.fetch_html", new_callable=AsyncMock, return_value=("<html></html>", "https://example.com/article"))
-    def test_analyze_keywords_has_entities(self, mock_fetch, mock_extract, mock_seo, mock_summ, mock_sent, mock_kw, mock_set, mock_get):
-        response = client.post("/api/v1/analyze", json={"url": "https://example.com/article"})
+    @patch(
+        "app.routes.v1.scraper.fetch_html",
+        new_callable=AsyncMock,
+        return_value=("<html></html>", "https://example.com/article"),
+    )
+    def test_analyze_keywords_has_entities(
+        self,
+        mock_fetch,
+        mock_extract,
+        mock_seo,
+        mock_summ,
+        mock_sent,
+        mock_kw,
+        mock_set,
+        mock_get,
+    ):
+        response = client.post(
+            "/api/v1/analyze", json={"url": "https://example.com/article"}
+        )
         data = response.json()["data"]
         entities = data["keywords"]["entities"]
         assert len(entities) > 0
@@ -284,10 +397,13 @@ class TestCompareEndpoint:
         ]
         mock_extract.side_effect = [MOCK_CONTENT, MOCK_CONTENT_2]
 
-        response = client.post("/api/v1/compare", json={
-            "url1": "https://example.com/article",
-            "url2": "https://example.com/article-2",
-        })
+        response = client.post(
+            "/api/v1/compare",
+            json={
+                "url1": "https://example.com/article",
+                "url2": "https://example.com/article-2",
+            },
+        )
         assert response.status_code == 200
         data = response.json()["data"]
         assert "similarity_score" in data
@@ -300,35 +416,48 @@ class TestCompareEndpoint:
     @patch("app.routes.v1.cache.set_cached", new_callable=AsyncMock)
     @patch("app.routes.v1.scraper.extract_content")
     @patch("app.routes.v1.scraper.fetch_html", new_callable=AsyncMock)
-    def test_compare_word_count_diff(self, mock_fetch, mock_extract, mock_set, mock_get):
+    def test_compare_word_count_diff(
+        self, mock_fetch, mock_extract, mock_set, mock_get
+    ):
         mock_fetch.side_effect = [
             ("<html>1</html>", "https://example.com/article"),
             ("<html>2</html>", "https://example.com/article-2"),
         ]
         mock_extract.side_effect = [MOCK_CONTENT, MOCK_CONTENT_2]
 
-        response = client.post("/api/v1/compare", json={
-            "url1": "https://example.com/article",
-            "url2": "https://example.com/article-2",
-        })
+        response = client.post(
+            "/api/v1/compare",
+            json={
+                "url1": "https://example.com/article",
+                "url2": "https://example.com/article-2",
+            },
+        )
         data = response.json()["data"]
-        assert data["word_count_diff"] == MOCK_CONTENT.word_count - MOCK_CONTENT_2.word_count
+        assert (
+            data["word_count_diff"]
+            == MOCK_CONTENT.word_count - MOCK_CONTENT_2.word_count
+        )
 
     @patch("app.routes.v1.cache.get_cached", new_callable=AsyncMock, return_value=None)
     @patch("app.routes.v1.cache.set_cached", new_callable=AsyncMock)
     @patch("app.routes.v1.scraper.extract_content")
     @patch("app.routes.v1.scraper.fetch_html", new_callable=AsyncMock)
-    def test_compare_readability_diff(self, mock_fetch, mock_extract, mock_set, mock_get):
+    def test_compare_readability_diff(
+        self, mock_fetch, mock_extract, mock_set, mock_get
+    ):
         mock_fetch.side_effect = [
             ("<html>1</html>", "https://example.com/article"),
             ("<html>2</html>", "https://example.com/article-2"),
         ]
         mock_extract.side_effect = [MOCK_CONTENT, MOCK_CONTENT_2]
 
-        response = client.post("/api/v1/compare", json={
-            "url1": "https://example.com/article",
-            "url2": "https://example.com/article-2",
-        })
+        response = client.post(
+            "/api/v1/compare",
+            json={
+                "url1": "https://example.com/article",
+                "url2": "https://example.com/article-2",
+            },
+        )
         data = response.json()["data"]
         # Both texts have enough words so readability_diff should be populated
         assert "readability_diff" in data
@@ -349,10 +478,13 @@ class TestCompareEndpoint:
         ]
         mock_extract.side_effect = [MOCK_CONTENT, empty_content]
 
-        response = client.post("/api/v1/compare", json={
-            "url1": "https://example.com/article",
-            "url2": "https://example.com/empty",
-        })
+        response = client.post(
+            "/api/v1/compare",
+            json={
+                "url1": "https://example.com/article",
+                "url2": "https://example.com/empty",
+            },
+        )
         assert response.status_code == 422
 
     @patch("app.routes.v1.cache.get_cached", new_callable=AsyncMock)
@@ -370,18 +502,24 @@ class TestCompareEndpoint:
         }
         mock_get.return_value = cached_data
 
-        response = client.post("/api/v1/compare", json={
-            "url1": "https://example.com/a",
-            "url2": "https://example.com/b",
-        })
+        response = client.post(
+            "/api/v1/compare",
+            json={
+                "url1": "https://example.com/a",
+                "url2": "https://example.com/b",
+            },
+        )
         assert response.status_code == 200
         assert response.json()["cached"] is True
 
     def test_compare_invalid_url(self):
-        response = client.post("/api/v1/compare", json={
-            "url1": "not-a-url",
-            "url2": "https://example.com/b",
-        })
+        response = client.post(
+            "/api/v1/compare",
+            json={
+                "url1": "not-a-url",
+                "url2": "https://example.com/b",
+            },
+        )
         assert response.status_code == 422
 
     @patch("app.routes.v1.cache.get_cached", new_callable=AsyncMock, return_value=None)
@@ -396,9 +534,12 @@ class TestCompareEndpoint:
         ]
         mock_extract.side_effect = [MOCK_CONTENT, MOCK_CONTENT]
 
-        response = client.post("/api/v1/compare", json={
-            "url1": "https://example.com/article",
-            "url2": "https://example.com/article",
-        })
+        response = client.post(
+            "/api/v1/compare",
+            json={
+                "url1": "https://example.com/article",
+                "url2": "https://example.com/article",
+            },
+        )
         assert response.status_code == 200
         assert response.json()["data"]["similarity_score"] == 1.0

@@ -145,7 +145,8 @@ async def extract_content_endpoint(request: ExtractRequest):
     try:
         html, final_url = await scraper.fetch_html(url)
         content = scraper.extract_content(
-            html, final_url,
+            html,
+            final_url,
             include_images=request.include_images,
             include_links=request.include_links,
             output_format=request.output_format,
@@ -154,7 +155,9 @@ async def extract_content_endpoint(request: ExtractRequest):
         # Cache the result
         await cache.set_cached("extract", cache_key, content.model_dump())
 
-        logger.info(f"[extract] url={url} words={content.word_count} ms={content.extraction_time_ms}")
+        logger.info(
+            f"[extract] url={url} words={content.word_count} ms={content.extraction_time_ms}"
+        )
         return ExtractResponse(data=content, timestamp=datetime.utcnow())
 
     except HTTPException:
@@ -197,7 +200,9 @@ async def summarize_endpoint(request: SummarizeRequest):
 
     # Build cache key
     source = str(request.url) if request.url else (request.text or "")[:200]
-    cache_key = f"{source}:{request.format.value}:{request.max_length}:{request.language}"
+    cache_key = (
+        f"{source}:{request.format.value}:{request.max_length}:{request.language}"
+    )
     cached = await cache.get_cached("summarize", cache_key)
     if cached:
         return SummarizeResponse(
@@ -419,7 +424,9 @@ async def analyze_endpoint(request: AnalyzeRequest):
         html, final_url = await scraper.fetch_html(url)
 
         # Step 2: Extract content and SEO (CPU-bound, fast)
-        content = scraper.extract_content(html, final_url, include_images=True, include_links=False)
+        content = scraper.extract_content(
+            html, final_url, include_images=True, include_links=False
+        )
         seo_data = scraper.extract_seo_metadata(html, final_url)
 
         if not content.text.strip():
@@ -464,12 +471,18 @@ async def analyze_endpoint(request: AnalyzeRequest):
         )
 
         # Content quality score (zero-cost computation)
-        from app.services.text_analytics import compute_content_quality_score, compute_readability as _cr
+        from app.services.text_analytics import (
+            compute_content_quality_score,
+            compute_readability as _cr,
+        )
+
         _readability = _cr(content.text) if content.word_count >= 20 else None
         quality_raw = compute_content_quality_score(
             word_count=content.word_count,
             sentence_count=_readability.sentence_count if _readability else 1,
-            flesch_reading_ease=_readability.flesch_reading_ease if _readability else 50.0,
+            flesch_reading_ease=_readability.flesch_reading_ease
+            if _readability
+            else 50.0,
             h1_count=len(seo_data.h1_tags),
             h2_count=len(seo_data.h2_tags),
             total_images=seo_data.total_images,
@@ -479,7 +492,9 @@ async def analyze_endpoint(request: AnalyzeRequest):
             has_meta_description=bool(seo_data.meta_description),
             has_canonical=bool(seo_data.canonical_url),
             has_open_graph=bool(seo_data.open_graph and seo_data.open_graph.og_title),
-            has_schema_markup=bool(seo_data.schema_markup and seo_data.schema_markup.types),
+            has_schema_markup=bool(
+                seo_data.schema_markup and seo_data.schema_markup.types
+            ),
         )
         quality = ContentQualityScore(**quality_raw)
 
@@ -568,6 +583,7 @@ async def compare_endpoint(request: CompareRequest):
 
         # Compute similarity (zero-cost)
         from app.services.text_analytics import compute_readability, compute_similarity
+
         sim = compute_similarity(content1.text, content2.text)
 
         # Readability comparison
@@ -576,7 +592,9 @@ async def compare_endpoint(request: CompareRequest):
         r2 = compute_readability(content2.text) if content2.word_count >= 20 else None
         if r1 and r2:
             readability_diff = {
-                "flesch_reading_ease_diff": round(r1.flesch_reading_ease - r2.flesch_reading_ease, 2),
+                "flesch_reading_ease_diff": round(
+                    r1.flesch_reading_ease - r2.flesch_reading_ease, 2
+                ),
                 "grade_level_diff": round(r1.avg_grade_level - r2.avg_grade_level, 2),
                 "url1_reading_level": r1.reading_level,
                 "url2_reading_level": r2.reading_level,

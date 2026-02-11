@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
 
 from app.services.text_analytics import (
     _count_sentences,
@@ -95,7 +94,12 @@ class TestComputeReadability:
     def test_reading_level_label(self):
         result = compute_readability(SAMPLE_TEXT)
         assert result.reading_level != ""
-        assert "grade" in result.reading_level.lower() or "college" in result.reading_level.lower() or "easy" in result.reading_level.lower() or "difficult" in result.reading_level.lower()
+        assert (
+            "grade" in result.reading_level.lower()
+            or "college" in result.reading_level.lower()
+            or "easy" in result.reading_level.lower()
+            or "difficult" in result.reading_level.lower()
+        )
 
     def test_statistics(self):
         result = compute_readability(SAMPLE_TEXT)
@@ -129,11 +133,19 @@ class TestComputeReadability:
 class TestComputeContentQualityScore:
     def test_minimal_content(self):
         result = compute_content_quality_score(
-            word_count=3, sentence_count=1, flesch_reading_ease=50,
-            h1_count=0, h2_count=0, total_images=0, images_without_alt=0,
-            internal_links=0, external_links=0,
-            has_meta_description=False, has_canonical=False,
-            has_open_graph=False, has_schema_markup=False,
+            word_count=3,
+            sentence_count=1,
+            flesch_reading_ease=50,
+            h1_count=0,
+            h2_count=0,
+            total_images=0,
+            images_without_alt=0,
+            internal_links=0,
+            external_links=0,
+            has_meta_description=False,
+            has_canonical=False,
+            has_open_graph=False,
+            has_schema_markup=False,
         )
         assert "total_score" in result
         assert "grade" in result
@@ -160,11 +172,19 @@ class TestComputeContentQualityScore:
 
     def test_breakdown_categories(self):
         result = compute_content_quality_score(
-            word_count=100, sentence_count=5, flesch_reading_ease=60,
-            h1_count=1, h2_count=2, total_images=1, images_without_alt=0,
-            internal_links=3, external_links=1,
-            has_meta_description=True, has_canonical=False,
-            has_open_graph=False, has_schema_markup=False,
+            word_count=100,
+            sentence_count=5,
+            flesch_reading_ease=60,
+            h1_count=1,
+            h2_count=2,
+            total_images=1,
+            images_without_alt=0,
+            internal_links=3,
+            external_links=1,
+            has_meta_description=True,
+            has_canonical=False,
+            has_open_graph=False,
+            has_schema_markup=False,
         )
         assert "breakdown" in result
         assert "content_depth" in result["breakdown"]
@@ -174,21 +194,37 @@ class TestComputeContentQualityScore:
     def test_recommendations_list(self):
         # Bad content should produce recommendations
         result = compute_content_quality_score(
-            word_count=1, sentence_count=1, flesch_reading_ease=20,
-            h1_count=0, h2_count=0, total_images=0, images_without_alt=0,
-            internal_links=0, external_links=0,
-            has_meta_description=False, has_canonical=False,
-            has_open_graph=False, has_schema_markup=False,
+            word_count=1,
+            sentence_count=1,
+            flesch_reading_ease=20,
+            h1_count=0,
+            h2_count=0,
+            total_images=0,
+            images_without_alt=0,
+            internal_links=0,
+            external_links=0,
+            has_meta_description=False,
+            has_canonical=False,
+            has_open_graph=False,
+            has_schema_markup=False,
         )
         assert isinstance(result["recommendations"], list)
 
     def test_max_scores(self):
         result = compute_content_quality_score(
-            word_count=100, sentence_count=5, flesch_reading_ease=60,
-            h1_count=1, h2_count=2, total_images=0, images_without_alt=0,
-            internal_links=0, external_links=0,
-            has_meta_description=False, has_canonical=False,
-            has_open_graph=False, has_schema_markup=False,
+            word_count=100,
+            sentence_count=5,
+            flesch_reading_ease=60,
+            h1_count=1,
+            h2_count=2,
+            total_images=0,
+            images_without_alt=0,
+            internal_links=0,
+            external_links=0,
+            has_meta_description=False,
+            has_canonical=False,
+            has_open_graph=False,
+            has_schema_markup=False,
         )
         assert result["max_scores"]["content_depth"] == 30
         assert result["max_scores"]["readability"] == 20
@@ -223,7 +259,9 @@ class TestComputeSimilarity:
         assert len(result["shared_keywords"]) > 0
 
     def test_unique_keywords(self):
-        text2 = "Cooking, recipes, ingredients, and delicious flavors make food wonderful."
+        text2 = (
+            "Cooking, recipes, ingredients, and delicious flavors make food wonderful."
+        )
         result = compute_similarity(SAMPLE_TEXT, text2)
         assert len(result["unique_to_text1"]) > 0
         assert len(result["unique_to_text2"]) > 0

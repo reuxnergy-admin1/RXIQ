@@ -13,8 +13,10 @@ from pydantic import BaseModel, Field, HttpUrl
 # Enums
 # ──────────────────────────────────────────────
 
+
 class SummaryFormat(str, Enum):
     """Supported summarization output formats."""
+
     tldr = "tldr"
     bullets = "bullets"
     key_takeaways = "key_takeaways"
@@ -23,6 +25,7 @@ class SummaryFormat(str, Enum):
 
 class SentimentLabel(str, Enum):
     """Sentiment classification labels."""
+
     positive = "positive"
     negative = "negative"
     neutral = "neutral"
@@ -33,28 +36,53 @@ class SentimentLabel(str, Enum):
 # Requests
 # ──────────────────────────────────────────────
 
+
 class ExtractRequest(BaseModel):
     """Request body for content extraction."""
-    url: HttpUrl = Field(..., description="The URL to extract content from")
-    include_images: bool = Field(False, description="Include image URLs in the response")
-    include_links: bool = Field(False, description="Include outbound links in the response")
-    output_format: str = Field("text", description="Output format: 'text' (plain text) or 'markdown'")
 
-    model_config = {"json_schema_extra": {"examples": [{"url": "https://example.com/article", "output_format": "markdown"}]}}
+    url: HttpUrl = Field(..., description="The URL to extract content from")
+    include_images: bool = Field(
+        False, description="Include image URLs in the response"
+    )
+    include_links: bool = Field(
+        False, description="Include outbound links in the response"
+    )
+    output_format: str = Field(
+        "text", description="Output format: 'text' (plain text) or 'markdown'"
+    )
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {"url": "https://example.com/article", "output_format": "markdown"}
+            ]
+        }
+    }
 
 
 class SummarizeRequest(BaseModel):
     """Request body for AI summarization."""
+
     url: Optional[HttpUrl] = Field(None, description="URL to scrape and summarize")
-    text: Optional[str] = Field(None, description="Raw text to summarize (alternative to URL)", max_length=50000)
-    format: SummaryFormat = Field(SummaryFormat.tldr, description="Output format for the summary")
-    max_length: int = Field(200, description="Approximate max length of summary in words", ge=20, le=1000)
+    text: Optional[str] = Field(
+        None, description="Raw text to summarize (alternative to URL)", max_length=50000
+    )
+    format: SummaryFormat = Field(
+        SummaryFormat.tldr, description="Output format for the summary"
+    )
+    max_length: int = Field(
+        200, description="Approximate max length of summary in words", ge=20, le=1000
+    )
     language: str = Field("en", description="Output language (ISO 639-1 code)")
 
     model_config = {
         "json_schema_extra": {
             "examples": [
-                {"url": "https://example.com/article", "format": "bullets", "max_length": 150}
+                {
+                    "url": "https://example.com/article",
+                    "format": "bullets",
+                    "max_length": 150,
+                }
             ]
         }
     }
@@ -62,13 +90,18 @@ class SummarizeRequest(BaseModel):
 
 class SentimentRequest(BaseModel):
     """Request body for sentiment analysis."""
+
     url: Optional[HttpUrl] = Field(None, description="URL to scrape and analyze")
-    text: Optional[str] = Field(None, description="Raw text to analyze (alternative to URL)", max_length=50000)
+    text: Optional[str] = Field(
+        None, description="Raw text to analyze (alternative to URL)", max_length=50000
+    )
 
     model_config = {
         "json_schema_extra": {
             "examples": [
-                {"text": "This product is absolutely amazing! Best purchase I've ever made."}
+                {
+                    "text": "This product is absolutely amazing! Best purchase I've ever made."
+                }
             ]
         }
     }
@@ -76,6 +109,7 @@ class SentimentRequest(BaseModel):
 
 class SEORequest(BaseModel):
     """Request body for SEO metadata extraction."""
+
     url: HttpUrl = Field(..., description="The URL to extract SEO metadata from")
 
     model_config = {"json_schema_extra": {"examples": [{"url": "https://example.com"}]}}
@@ -83,9 +117,14 @@ class SEORequest(BaseModel):
 
 class AnalyzeRequest(BaseModel):
     """Request body for full content analysis (extract + summarize + sentiment + SEO)."""
+
     url: HttpUrl = Field(..., description="The URL to fully analyze")
-    summary_format: SummaryFormat = Field(SummaryFormat.tldr, description="Summary output format")
-    summary_max_length: int = Field(200, description="Approximate max summary length in words", ge=20, le=1000)
+    summary_format: SummaryFormat = Field(
+        SummaryFormat.tldr, description="Summary output format"
+    )
+    summary_max_length: int = Field(
+        200, description="Approximate max summary length in words", ge=20, le=1000
+    )
 
     model_config = {
         "json_schema_extra": {
@@ -103,10 +142,15 @@ class AnalyzeRequest(BaseModel):
 
 class ReadabilityMetrics(BaseModel):
     """Readability scores and text statistics (zero API cost)."""
-    flesch_reading_ease: float = Field(0, description="Flesch Reading Ease score (0-100, higher = easier)")
+
+    flesch_reading_ease: float = Field(
+        0, description="Flesch Reading Ease score (0-100, higher = easier)"
+    )
     flesch_kincaid_grade: float = Field(0, description="Flesch-Kincaid US grade level")
     coleman_liau_index: float = Field(0, description="Coleman-Liau US grade level")
-    automated_readability_index: float = Field(0, description="Automated Readability Index")
+    automated_readability_index: float = Field(
+        0, description="Automated Readability Index"
+    )
     avg_grade_level: float = Field(0, description="Average of all grade-level metrics")
     reading_level: str = Field("", description="Human-readable difficulty label")
     sentence_count: int = 0
@@ -119,22 +163,33 @@ class ReadabilityMetrics(BaseModel):
     unique_words: int = 0
     vocabulary_density: float = Field(0, description="Unique words / total words (0-1)")
     complex_word_count: int = 0
-    complex_word_pct: float = Field(0, description="Percentage of words with 3+ syllables")
-    reading_time_seconds: int = Field(0, description="Estimated reading time in seconds")
-    reading_time_minutes: float = Field(0, description="Estimated reading time in minutes")
+    complex_word_pct: float = Field(
+        0, description="Percentage of words with 3+ syllables"
+    )
+    reading_time_seconds: int = Field(
+        0, description="Estimated reading time in seconds"
+    )
+    reading_time_minutes: float = Field(
+        0, description="Estimated reading time in minutes"
+    )
 
 
 class ExtractedContent(BaseModel):
     """Extracted content from a web page."""
+
     url: str
     title: str = ""
     author: Optional[str] = None
     published_date: Optional[str] = None
     text: str = ""
-    markdown: Optional[str] = Field(None, description="Content as clean Markdown (when output_format='markdown')")
+    markdown: Optional[str] = Field(
+        None, description="Content as clean Markdown (when output_format='markdown')"
+    )
     word_count: int = 0
     excerpt: str = ""
-    readability: Optional[ReadabilityMetrics] = Field(None, description="Readability scores and text statistics")
+    readability: Optional[ReadabilityMetrics] = Field(
+        None, description="Readability scores and text statistics"
+    )
     images: list[str] = Field(default_factory=list)
     links: list[str] = Field(default_factory=list)
     language: Optional[str] = None
@@ -143,6 +198,7 @@ class ExtractedContent(BaseModel):
 
 class ExtractResponse(BaseModel):
     """Response from the content extraction endpoint."""
+
     success: bool = True
     data: ExtractedContent
     cached: bool = False
@@ -151,6 +207,7 @@ class ExtractResponse(BaseModel):
 
 class SummaryData(BaseModel):
     """AI-generated summary data."""
+
     original_url: Optional[str] = None
     format: SummaryFormat
     summary: str
@@ -163,6 +220,7 @@ class SummaryData(BaseModel):
 
 class SummarizeResponse(BaseModel):
     """Response from the summarization endpoint."""
+
     success: bool = True
     data: SummaryData
     cached: bool = False
@@ -171,16 +229,18 @@ class SummarizeResponse(BaseModel):
 
 class SentimentData(BaseModel):
     """Sentiment analysis results."""
+
     original_url: Optional[str] = None
     sentiment: SentimentLabel
-    confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence score (0.0 to 1.0)")
+    confidence: float = Field(
+        ..., ge=0.0, le=1.0, description="Confidence score (0.0 to 1.0)"
+    )
     scores: dict[str, float] = Field(
         default_factory=dict,
-        description="Individual scores for each sentiment category"
+        description="Individual scores for each sentiment category",
     )
     key_phrases: list[str] = Field(
-        default_factory=list,
-        description="Key phrases that influenced the sentiment"
+        default_factory=list, description="Key phrases that influenced the sentiment"
     )
     model_used: str = ""
     processing_time_ms: int = 0
@@ -188,6 +248,7 @@ class SentimentData(BaseModel):
 
 class SentimentResponse(BaseModel):
     """Response from the sentiment analysis endpoint."""
+
     success: bool = True
     data: SentimentData
     cached: bool = False
@@ -196,6 +257,7 @@ class SentimentResponse(BaseModel):
 
 class OpenGraphTags(BaseModel):
     """Open Graph metadata."""
+
     og_title: Optional[str] = None
     og_description: Optional[str] = None
     og_image: Optional[str] = None
@@ -206,6 +268,7 @@ class OpenGraphTags(BaseModel):
 
 class TwitterCard(BaseModel):
     """Twitter Card metadata."""
+
     card: Optional[str] = None
     title: Optional[str] = None
     description: Optional[str] = None
@@ -215,12 +278,14 @@ class TwitterCard(BaseModel):
 
 class SchemaMarkup(BaseModel):
     """JSON-LD / Schema.org structured data."""
+
     types: list[str] = Field(default_factory=list)
     data: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class SEOData(BaseModel):
     """SEO metadata extraction results."""
+
     url: str
     title: Optional[str] = None
     meta_description: Optional[str] = None
@@ -244,6 +309,7 @@ class SEOData(BaseModel):
 
 class SEOResponse(BaseModel):
     """Response from the SEO metadata extraction endpoint."""
+
     success: bool = True
     data: SEOData
     cached: bool = False
@@ -252,27 +318,44 @@ class SEOResponse(BaseModel):
 
 class KeywordData(BaseModel):
     """Keyword and topic extraction results."""
+
     original_url: Optional[str] = None
-    keywords: list[str] = Field(default_factory=list, description="Important keywords/phrases")
-    topics: list[str] = Field(default_factory=list, description="Broad topic categories")
-    entities: list[dict[str, str]] = Field(default_factory=list, description="Named entities with types")
+    keywords: list[str] = Field(
+        default_factory=list, description="Important keywords/phrases"
+    )
+    topics: list[str] = Field(
+        default_factory=list, description="Broad topic categories"
+    )
+    entities: list[dict[str, str]] = Field(
+        default_factory=list, description="Named entities with types"
+    )
     category: str = Field("other", description="Content category classification")
-    tags: list[str] = Field(default_factory=list, description="Auto-generated content tags")
+    tags: list[str] = Field(
+        default_factory=list, description="Auto-generated content tags"
+    )
     model_used: str = ""
     processing_time_ms: int = 0
 
 
 class ContentQualityScore(BaseModel):
     """Composite content quality score (0-100)."""
+
     total_score: int = Field(0, description="Overall quality score (0-100)")
     grade: str = Field("F", description="Letter grade (A+ to F)")
-    breakdown: dict[str, int] = Field(default_factory=dict, description="Score breakdown by category")
-    max_scores: dict[str, int] = Field(default_factory=dict, description="Maximum possible score per category")
-    recommendations: list[str] = Field(default_factory=list, description="Actionable improvement suggestions")
+    breakdown: dict[str, int] = Field(
+        default_factory=dict, description="Score breakdown by category"
+    )
+    max_scores: dict[str, int] = Field(
+        default_factory=dict, description="Maximum possible score per category"
+    )
+    recommendations: list[str] = Field(
+        default_factory=list, description="Actionable improvement suggestions"
+    )
 
 
 class AnalyzeData(BaseModel):
     """Full analysis combining all endpoints."""
+
     content: ExtractedContent
     summary: SummaryData
     sentiment: SentimentData
@@ -284,6 +367,7 @@ class AnalyzeData(BaseModel):
 
 class AnalyzeResponse(BaseModel):
     """Response from the full analysis endpoint."""
+
     success: bool = True
     data: AnalyzeData
     cached: bool = False
@@ -297,13 +381,17 @@ class AnalyzeResponse(BaseModel):
 
 class CompareRequest(BaseModel):
     """Request body for content comparison."""
+
     url1: HttpUrl = Field(..., description="First URL to compare")
     url2: HttpUrl = Field(..., description="Second URL to compare")
 
     model_config = {
         "json_schema_extra": {
             "examples": [
-                {"url1": "https://example.com/article-1", "url2": "https://example.com/article-2"}
+                {
+                    "url1": "https://example.com/article-1",
+                    "url2": "https://example.com/article-2",
+                }
             ]
         }
     }
@@ -311,9 +399,12 @@ class CompareRequest(BaseModel):
 
 class CompareData(BaseModel):
     """Content comparison results."""
+
     url1: str
     url2: str
-    similarity_score: float = Field(0, ge=0, le=1, description="Cosine similarity (0-1)")
+    similarity_score: float = Field(
+        0, ge=0, le=1, description="Cosine similarity (0-1)"
+    )
     shared_keywords: list[str] = Field(default_factory=list)
     unique_to_url1: list[str] = Field(default_factory=list)
     unique_to_url2: list[str] = Field(default_factory=list)
@@ -324,6 +415,7 @@ class CompareData(BaseModel):
 
 class CompareResponse(BaseModel):
     """Response from the content comparison endpoint."""
+
     success: bool = True
     data: CompareData
     cached: bool = False
@@ -332,6 +424,7 @@ class CompareResponse(BaseModel):
 
 class ErrorDetail(BaseModel):
     """Error detail model."""
+
     code: str
     message: str
     details: Optional[str] = None
@@ -339,6 +432,7 @@ class ErrorDetail(BaseModel):
 
 class ErrorResponse(BaseModel):
     """Standard error response."""
+
     success: bool = False
     error: ErrorDetail
     timestamp: datetime = Field(default_factory=datetime.utcnow)
@@ -346,6 +440,7 @@ class ErrorResponse(BaseModel):
 
 class HealthResponse(BaseModel):
     """Health check response."""
+
     status: str = "healthy"
     version: str
     uptime_seconds: float
@@ -355,6 +450,7 @@ class HealthResponse(BaseModel):
 
 class UsageResponse(BaseModel):
     """API usage statistics for the current billing period."""
+
     plan: str = "free"
     calls_used: int = 0
     calls_limit: int = 100

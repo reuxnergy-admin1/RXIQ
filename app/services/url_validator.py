@@ -88,7 +88,9 @@ def validate_url(url: str) -> str:
 
     # Resolve hostname and check IP ranges (SSRF protection)
     try:
-        addr_infos = socket.getaddrinfo(hostname, None, socket.AF_UNSPEC, socket.SOCK_STREAM)
+        addr_infos = socket.getaddrinfo(
+            hostname, None, socket.AF_UNSPEC, socket.SOCK_STREAM
+        )
         for family, _, _, _, sockaddr in addr_infos:
             ip_str = sockaddr[0]
             try:
