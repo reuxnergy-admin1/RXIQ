@@ -26,17 +26,17 @@ RUN adduser --disabled-password --gecos "" appuser && \
 USER appuser
 
 # Expose port
-EXPOSE 8000
+EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import httpx; httpx.get('http://localhost:8000/health').raise_for_status()"
+    CMD python -c "import httpx; httpx.get('http://localhost:8080/health').raise_for_status()"
 
 # Run with gunicorn + uvicorn workers for production
 CMD ["gunicorn", "app.main:app", \
      "--worker-class", "uvicorn.workers.UvicornWorker", \
      "--workers", "4", \
-     "--bind", "0.0.0.0:8000", \
+     "--bind", "0.0.0.0:8080", \
      "--timeout", "120", \
      "--keep-alive", "5", \
      "--access-logfile", "-", \

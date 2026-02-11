@@ -1,4 +1,4 @@
-# ContentIQ API
+# RXIQ API
 
 **AI-Powered Content Intelligence API** — Extract, summarize, analyze, and compare web content with a single API call.
 
@@ -79,8 +79,8 @@ Use the included `render.yaml` for one-click deploy.
 ### Docker
 
 ```bash
-docker build -t rxiq-api .
-docker run -p 8000:8000 --env-file .env rxiq-api
+docker build -t rxiq-rapidapi .
+docker run -p 8080:8080 --env-file .env rxiq-rapidapi
 ```
 
 ## Pricing Tiers (RapidAPI)

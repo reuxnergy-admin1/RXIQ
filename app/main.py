@@ -162,7 +162,7 @@ app = FastAPI(
             "url": "https://rxiq-api.p.rapidapi.com",
             "description": "RapidAPI Production",
         },
-        {"url": "http://localhost:8000", "description": "Local Development"},
+        {"url": "http://localhost:8080", "description": "Local Development"},
     ],
 )
 

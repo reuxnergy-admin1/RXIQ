@@ -58,11 +58,11 @@ URL: `https://rxiq-api.onrender.com`
 docker compose up -d
 
 # Or without Redis:
-docker build -t rxiq-api .
-docker run -d -p 8000:8000 \
+docker build -t rxiq-rapidapi .
+docker run -d -p 8080:8080 \
   -e OPENAI_API_KEY=sk-your-key \
   -e RAPIDAPI_PROXY_SECRET=your-secret \
-  rxiq-api
+  rxiq-rapidapi
 ```
 
 ### Verify Deployment

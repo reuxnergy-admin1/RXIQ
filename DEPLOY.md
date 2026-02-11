@@ -42,8 +42,8 @@
 #   docker-compose up --build
 #
 #   # Or build image for cloud:
-#   docker build -t rxiq-api .
-#   docker push your-registry/rxiq-api
+#   docker build -t rxiq-rapidapi .
+#   docker push your-registry/rxiq-rapidapi
 #
 # ──────────────────────────────────────────────────────────────
 # OPTION 4: Local Development

@@ -1,18 +1,18 @@
 # Fly.io configuration for RXIQ API
 # Docs: https://fly.io/docs/reference/configuration/
 
-app = 'rxiq-api'
-primary_region = 'iad'  # US East (Ashburn) — low latency for most users
+app = 'rxiq-rapidapi'
+primary_region = 'ams'  # Amsterdam, Netherlands
 
 [build]
   dockerfile = "Dockerfile"
 
 [env]
   ENVIRONMENT = "production"
-  PORT = "8000"
+  PORT = "8080"
 
 [http_service]
-  internal_port = 8000
+  internal_port = 8080
   force_https = true
   auto_stop_machines = "stop"    # Stop when idle (free tier friendly)
   auto_start_machines = true     # Auto-start on request (~2s cold start)
@@ -33,7 +33,7 @@ primary_region = 'iad'  # US East (Ashburn) — low latency for most users
   timeout = "5s"
 
 [processes]
-  app = "gunicorn app.main:app --worker-class uvicorn.workers.UvicornWorker --workers 2 --bind 0.0.0.0:8000 --timeout 120 --keep-alive 5 --access-logfile - --error-logfile -"
+  app = "gunicorn app.main:app --worker-class uvicorn.workers.UvicornWorker --workers 2 --bind 0.0.0.0:8080 --timeout 120 --keep-alive 5 --access-logfile - --error-logfile -"
 
 [[vm]]
   size = 'shared-cpu-1x'
