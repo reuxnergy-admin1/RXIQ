@@ -1,0 +1,15 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "RXIQ API",
+    "version": "2.0.0",
+    "description": "AI-Powered Content Intelligence API — Extract, summarize, analyze, and compare web content with a single API call. Features include readability scoring, keyword/entity extraction, content quality grading, markdown output, and side-by-side URL comparison. Combines web scraping with GPT-4o-mini to deliver structured content intelligence from any URL.",
+    "contact": {
+      "name": "RXIQ API Support"
+    }
+  },
+  "x-rapidapi": {
+    "categories": ["Data", "Text Analysis", "Artificial Intelligence/Machine Learning"],
+    "tags": ["ai", "content", "scraping", "summarization", "sentiment", "seo", "nlp", "web-scraping", "text-analysis", "content-extraction", "readability", "keywords", "comparison", "markdown"]
+  }
+}
